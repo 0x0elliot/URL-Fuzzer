@@ -1,19 +1,24 @@
-import requests
+import argparse, requests
 
-print("Welcome to my URL Fuzzer")
-url = input("What is your URL? ")
-wl = input("What is the file for your wordlist? ")
-threadCount = input("How many threads (1-500)? ")
+parser = argparse.ArgumentParser(prog='fuzzer', description='A tool for finding hidden files and directories on a web server.')
+parser.add_argument('--url', dest='url', action='store', 
+help="Used to parse a valid URL for fuzzing")
+parser.add_argument('--wordlist', dest='wordlist', action='store', 
+help="Used to parse wordlist file for fuzzing")
+parser.add_argument('--threads', dest='threads', action='store',
+help="Used to request a specific number of threads to be used")
+args = parser.parse_args()
 
-def main(url,wl,threadCount):
-    with open(wl, 'r') as file:
-        for line in file.read().split('\n'):
-            r = requests.get(url+line)
-            if(r.ok):
-                print("Success")
-                print(r.url)
-            else:
-                print("Fail")
-                print(r.url)
+def main(args):
+    try:
+        with open(args.wordlist, 'r') as file:
+            for line in file.read().split('\n'):
+                r = requests.get(args.url+line)
+                if(r.ok):
+                    print(r.url)
+                else:
+                    continue
+    except requests.exceptions.HTTPError as e:
+        print(e)
 
-main(url,wl,threadCount)
+main(args)
